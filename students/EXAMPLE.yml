@@ -1,0 +1,12 @@
+# Copy this file, rename it to <your-github-username>.yml, and edit the values.
+# Do NOT edit this EXAMPLE.yml file itself - it is ignored by the check.
+#
+# YAML rule that catches everyone once: there is a space after every colon.
+#   name: Aisha Nurlanqyzy     <- correct
+#   name:Aisha Nurlanqyzy      <- broken
+
+name: Aisha Nurlanqyzy          # your full name, as in the student system
+github: aisha-nurlanqyzy        # your GitHub username, lowercase, no @
+group: A                        # A = practice at 12:30, B = practice at 13:30
+os: windows                     # windows, macos or linux - the laptop you will work on
+email: aisha@stu.sdu.edu.kz     # optional, but it must be your SDU address if you include it
