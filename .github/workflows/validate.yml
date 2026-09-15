@@ -1,0 +1,54 @@
+name: Check roster entry
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate submission
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install --quiet pyyaml
+
+      - name: Check that only students/ was modified
+        if: github.event_name == 'pull_request'
+        run: |
+          base="origin/${{ github.base_ref }}"
+          changed=$(git diff --name-only "$base"...HEAD)
+          echo "Files changed in this pull request:"
+          echo "$changed" | sed 's/^/  /'
+          outside=$(echo "$changed" | grep -v '^students/' || true)
+          if [ -n "$outside" ]; then
+            echo "::error::This pull request changes files outside students/:"
+            echo "$outside" | sed 's/^/  /'
+            exit 1
+          fi
+          count=$(echo "$changed" | grep -c '^students/' || true)
+          if [ "$count" -ne 1 ]; then
+            echo "::error::Expected exactly 1 changed file in students/, found $count."
+            exit 1
+          fi
+
+      - name: Validate roster files
+        env:
+          PR_AUTHOR: ${{ github.event_name == 'pull_request' && github.event.pull_request.user.login || '' }}
+        run: |
+          if [ -n "$PR_AUTHOR" ]; then
+            python3 scripts/validate_roster.py --author "$PR_AUTHOR"
+          else
+            python3 scripts/validate_roster.py
+          fi
